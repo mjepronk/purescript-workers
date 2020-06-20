@@ -1,11 +1,11 @@
 /* SERVICE WORKER CONTAINER */
 
-exports._controller = function eff() {
+exports._controller = function () {
     return navigator.serviceWorker.controller;
 };
 
-exports._getRegistration = function _getRegistration(url) {
-    return function aff(success, error) {
+exports._getRegistration = function (url) {
+    return function (error, success) {
         try {
             navigator.serviceWorker
                      .getRegistration(url || '')
@@ -16,16 +16,16 @@ exports._getRegistration = function _getRegistration(url) {
     };
 };
 
-exports._onControllerChange = function _onControllerChange(f) {
-    return function eff() {
+exports._onControllerChange = function (f) {
+    return function () {
         navigator.serviceWorker.oncontrollerchange = function oncontrollerchange() {
             f();
         };
     };
 };
 
-exports._onMessage = function _onMessage(f) {
-    return function eff() {
+exports._onMessage = function (f) {
+    return function () {
         navigator.serviceWorker.onmessage = function onmessage(e) {
             f(e.data)();
         };
@@ -33,7 +33,7 @@ exports._onMessage = function _onMessage(f) {
 };
 
 
-exports._ready = function aff(success, error) {
+exports._ready = function (error, success) {
     try {
         navigator.serviceWorker
                  .ready
@@ -43,9 +43,9 @@ exports._ready = function aff(success, error) {
     }
 };
 
-exports._register = function _register(url) {
-    return function _register2(opts) {
-        return function aff(success, error) {
+exports._register = function (url) {
+    return function (opts) {
+        return function (error, success) {
             try {
                 navigator.serviceWorker
                          .register(url, opts)
@@ -57,18 +57,18 @@ exports._register = function _register(url) {
     };
 };
 
-exports._startMessages = function eff() {
+exports._startMessages = function () {
     navigator.serviceWorker
              .startMessages();
 };
 
 /* SERVICE WORKER */
 
-exports._onStateChange = function _onStateChange(toState) {
-    return function _onStateChange2(service) {
-        return function _onStateChange3(f) {
-            return function eff() {
-                service.onstatechange = function onstatechange(e) {
+exports._onStateChange = function (toState) {
+    return function (service) {
+        return function (f) {
+            return function () {
+                service.onstatechange = function (e) {
                     f(toState(e.source.state))();
                 };
             };
@@ -76,36 +76,36 @@ exports._onStateChange = function _onStateChange(toState) {
     };
 };
 
-exports._scriptURL = function _scriptURL(service) {
+exports._scriptURL = function (service) {
     return service.scriptURL;
 };
 
-exports._state = function _state(toState) {
-    return function _state2(service) {
+exports._state = function (toState) {
+    return function (service) {
         return toState(service.state);
     };
 };
 
 /* SERVICE WORKER REGISTRATION */
 
-exports._active = function _active(registration) {
+exports._active = function (registration) {
     return registration.active;
 };
 
-exports._installing = function _installing(registration) {
+exports._installing = function (registration) {
     return registration.installing;
 };
 
-exports._waiting = function _waiting(registration) {
+exports._waiting = function (registration) {
     return registration.waiting;
 };
 
-exports._scope = function _scope(registration) {
+exports._scope = function (registration) {
     return registration.scope;
 };
 
-exports._update = function _update(registration) {
-    return function aff(success, error) {
+exports._update = function (registration) {
+    return function (error, success) {
         try {
             registration.update().then(success, error);
         } catch (err) {
@@ -114,8 +114,8 @@ exports._update = function _update(registration) {
     };
 };
 
-exports._unregister = function _unregister(registration) {
-    return function aff(success, error) {
+exports._unregister = function (registration) {
+    return function (error, success) {
         try {
             registration.update().then(success, error);
         } catch (err) {
@@ -124,9 +124,9 @@ exports._unregister = function _unregister(registration) {
     };
 };
 
-exports._onUpdateFound = function _onUpdateFound(registration) {
-    return function _onUpdateFound2(f) {
-        return function eff() {
+exports._onUpdateFound = function (registration) {
+    return function (f) {
+        return function () {
             registration.onupdatefound = function onupdatefound() {
                 f();
             };

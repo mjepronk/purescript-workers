@@ -3,36 +3,23 @@ module Aff.ApplicationCache
   , swapCache
   , update
   , module ApplicationCache
-  ) where
+  )
+where
 
 import Prelude
 
-import Control.Monad.Aff           (Aff)
-import Control.Monad.Eff.Class     (liftEff)
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 
-import ApplicationCache             as A
-import ApplicationCache            (APPCACHE, ApplicationCache, Status(..), status)
-
-
-abort
-  :: forall e
-  .  ApplicationCache
-  -> Aff (appcache :: APPCACHE | e) Unit
-abort =
-  liftEff <<< A.abort
+import ApplicationCache as A
+import ApplicationCache (ApplicationCache, Status(..), status)
 
 
-swapCache
-  :: forall e
-  .  ApplicationCache
-  -> Aff (appcache :: APPCACHE | e) Unit
-swapCache =
-  liftEff <<< A.swapCache
+abort :: ApplicationCache -> Aff Unit
+abort = liftEffect <<< A.abort
 
+swapCache :: ApplicationCache -> Aff Unit
+swapCache = liftEffect <<< A.swapCache
 
-update
-  :: forall e
-  .  ApplicationCache
-  -> Aff (appcache :: APPCACHE | e) Unit
-update =
-  liftEff <<< A.update
+update :: ApplicationCache -> Aff Unit
+update = liftEffect <<< A.update

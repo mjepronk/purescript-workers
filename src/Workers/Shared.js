@@ -1,11 +1,11 @@
-exports._new = function _new(src) {
-    return function _new2(opts) {
-        return function eff() {
+exports._new = function (src) {
+    return function (opts) {
+        return function () {
             return new SharedWorker(src, opts);
         };
     };
 };
 
-exports._port = function _port(wrk) {
+exports._port = function (wrk) {
     return wrk.port;
 };

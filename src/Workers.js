@@ -1,17 +1,17 @@
-exports._onError = function _onError(wrk) {
-    return function _onError2(f) {
-        return function eff() {
-            wrk.onerror = function onerror(err) {
+exports._onError = function (wrk) {
+    return function (f) {
+        return function () {
+            wrk.onerror = function (err) {
                 f(err)();
             };
         };
     };
 };
 
-exports._postMessage = function postMessage(channel) {
-    return function postMessage2(msg) {
-        return function postMessage3(transfer) {
-            return function eff() {
+exports._postMessage = function (channel) {
+    return function (msg) {
+        return function (transfer) {
+            return function () {
                 channel.postMessage(msg, transfer.length > 0 ? transfer : undefined);
             };
         };

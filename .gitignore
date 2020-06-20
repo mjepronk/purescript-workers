@@ -76,4 +76,5 @@ releases
 .psc*
 .purs*
 .psa*
+.spago
 dist

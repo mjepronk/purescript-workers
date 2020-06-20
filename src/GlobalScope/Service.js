@@ -1,27 +1,27 @@
 /* Global Scope */
 
-exports._caches = function eff() {
+exports._caches = function () {
     return self.caches;
 };
 
-exports._clients = function eff() {
+exports._clients = function () {
     return self.clients;
 };
 
-exports._registration = function eff() {
+exports._registration = function () {
     return self.registration;
 };
 
-exports._skipWaiting = function eff() {
+exports._skipWaiting = function () {
     self.skipWaiting();
 };
 
-exports._onInstall = function _onInstall(f) {
-    return function eff() {
+exports._onInstall = function (f) {
+    return function () {
         self.oninstall = function oninstall(e) {
             e.waitUntil(new Promise(function waitUntil(resolve, reject) {
                 try {
-                    f(resolve, reject);
+                    f(reject, resolve);
                 } catch (err) {
                     reject(err);
                 }
@@ -30,12 +30,12 @@ exports._onInstall = function _onInstall(f) {
     };
 };
 
-exports._onActivate = function _onActivate(f) {
-    return function eff() {
-        self.onactivate = function onactivate(e) {
+exports._onActivate = function (f) {
+    return function () {
+        self.onactivate = function (e) {
             e.waitUntil(new Promise(function waitUntil(resolve, reject) {
                 try {
-                    f(resolve, reject);
+                    f(reject, resolve);
                 } catch (err) {
                     reject(err);
                 }
@@ -44,10 +44,10 @@ exports._onActivate = function _onActivate(f) {
     };
 };
 
-exports._onFetch = function _onFetch(toNullable) {
-    return function _onFetch2(respondWith) {
-        return function _onFetch3(waitUntil) {
-            return function eff() {
+exports._onFetch = function (toNullable) {
+    return function (respondWith) {
+        return function (waitUntil) {
+            return function () {
                 self.onfetch = function onfetch(e) {
                     e.respondWith(new Promise(function respondWithCb(resolve, reject) {
                         try {
@@ -78,12 +78,12 @@ exports._onFetch = function _onFetch(toNullable) {
     };
 };
 
-exports._onMessage = function _onMessage(f) {
-    return function eff() {
-        self.onmessage = function onmessage(e) {
-            e.waitUntil(new Promise(function waitUntil(resolve, reject) {
+exports._onMessage = function(f) {
+    return function () {
+        self.onmessage = function(e) {
+            e.waitUntil(new Promise(function (resolve, reject) {
                 try {
-                    f(e.source.id)(e.data)(resolve, reject);
+                    f(e.source.id)(e.data)(reject, resolve);
                 } catch (err) {
                     reject(err);
                 }
@@ -94,9 +94,9 @@ exports._onMessage = function _onMessage(f) {
 
 /* Clients Interface */
 
-exports._get = function _get(clients) {
-    return function _get2(id) {
-        return function aff(success, error) {
+exports._get = function(clients) {
+    return function(id) {
+        return function (error, success) {
             try {
                 clients.get(id).then(success, error);
             } catch (err) {
@@ -106,9 +106,9 @@ exports._get = function _get(clients) {
     };
 };
 
-exports._matchAll = function _matchAll(clients) {
-    return function _matchAll2(opts) {
-        return function aff(success, error) {
+exports._matchAll = function(clients) {
+    return function(opts) {
+        return function(error, success) {
             try {
                 clients.matchAll(opts)
                        .then(function onSuccess(matches) {
@@ -122,9 +122,9 @@ exports._matchAll = function _matchAll(clients) {
     };
 };
 
-exports._openWindow = function _openWindow(clients) {
-    return function _openWindow2(url) {
-        return function aff(success, error) {
+exports._openWindow = function(clients) {
+    return function(url) {
+        return function (error, success) {
             try {
                 clients.openWindow(url).then(success, error);
             } catch (err) {
@@ -134,8 +134,8 @@ exports._openWindow = function _openWindow(clients) {
     };
 };
 
-exports._claim = function _claim(clients) {
-    return function aff(success, error) {
+exports._claim = function(clients) {
+    return function(error, success) {
         try {
             clients.claim().then(success, error);
         } catch (err) {
@@ -146,34 +146,34 @@ exports._claim = function _claim(clients) {
 
 /* Client Interface */
 
-exports._url = function _url(client) {
+exports._url = function(client) {
     return client.url;
 };
 
-exports._frameType = function _frameType(toFrameType) {
-    return function _frameType2(client) {
+exports._frameType = function(toFrameType) {
+    return function(client) {
         return toFrameType(client.frameType);
     };
 };
 
-exports._clientId = function _clientId(client) {
+exports._clientId = function(client) {
     return client.id;
 };
 
 /* Window Client Interface */
 
-exports._visibilityState = function _visibilityState(toVisibilityState) {
-    return function _visibilityState2(client) {
+exports._visibilityState = function(toVisibilityState) {
+    return function(client) {
         return toVisibilityState(client.visibilityState);
     };
 };
 
-exports._focused = function _focused(client) {
+exports._focused = function(client) {
     return client.focused;
 };
 
-exports._focus = function _focus(client) {
-    return function aff(success, error) {
+exports._focus = function(client) {
+    return function (error, success) {
         try {
             client.focus().then(success, error);
         } catch (err) {
@@ -182,9 +182,9 @@ exports._focus = function _focus(client) {
     };
 };
 
-exports._navigate = function _navigate(client) {
-    return function _navigate2(url) {
-        return function aff(success, error) {
+exports._navigate = function(client) {
+    return function(url) {
+        return function (error, success) {
             client.navigate(url).then(success, error);
         };
     };

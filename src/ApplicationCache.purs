@@ -1,22 +1,15 @@
 module ApplicationCache
-  ( APPCACHE
-  , ApplicationCache
+  ( ApplicationCache
   , Status(..)
   , abort
   , status
   , update
   , swapCache
-  ) where
+  )
+where
 
 import Prelude
-
-import Control.Monad.Eff(kind Effect, Eff)
-
-
-foreign import data APPCACHE :: Effect
-
-
-foreign import data ApplicationCache :: Type
+import Effect (Effect)
 
 
 data Status
@@ -38,38 +31,22 @@ type StatusRec =
   }
 
 
-foreign import abort
-  :: forall e
-  .  ApplicationCache
-  -> Eff (appcache :: APPCACHE | e) Unit
-
-
-status
-  :: ApplicationCache
-  -> Status
+status :: ApplicationCache -> Status
 status =
-  _status { uncached    : Uncached
-          , idle        : Idle
-          , checking    : Checking
-          , downloading : Downloading
-          , updateReady : UpdateReady
-          , obsolete    : Obsolete
+  _status { uncached: Uncached
+          , idle: Idle
+          , checking: Checking
+          , downloading: Downloading
+          , updateReady: UpdateReady
+          , obsolete: Obsolete
           }
 
+foreign import data ApplicationCache :: Type
 
-foreign import _status
-  :: StatusRec
-  -> ApplicationCache
-  -> Status
+foreign import abort :: ApplicationCache -> Effect Unit
 
+foreign import _status :: StatusRec -> ApplicationCache -> Status
 
-foreign import swapCache
-  :: forall e
-  .  ApplicationCache
-  -> Eff (appcache :: APPCACHE | e) Unit
+foreign import swapCache :: ApplicationCache -> Effect Unit
 
-
-foreign import update
-  :: forall e
-  .  ApplicationCache
-  -> Eff (appcache :: APPCACHE | e) Unit
+foreign import update :: ApplicationCache -> Effect Unit

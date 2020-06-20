@@ -6,7 +6,7 @@ module GlobalScope.Service
   , skipWaiting
   , onInstall
   , onActivate
-  , onFetch
+  -- , onFetch
   , onMessage
 
   -- * Clients Interface
@@ -18,7 +18,6 @@ module GlobalScope.Service
   , openWindow
   , claim
 
-
   -- * Client Interface
   , Client
   , ClientId
@@ -26,7 +25,6 @@ module GlobalScope.Service
   , url
   , frameType
   , clientId
-
 
   -- * Window Client Interface
   , WindowClient
@@ -36,39 +34,34 @@ module GlobalScope.Service
   , focused
   , focus
   , navigate
-  ) where
-
+  )
+where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Eff (Eff)
-import Data.Maybe        (Maybe(..))
-import Data.Nullable     (Nullable, toMaybe, toNullable)
-import Data.String.Read  (class Read, read)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
+import Data.Maybe (Maybe(..))
+import Data.Nullable (Nullable, toMaybe, toNullable)
+import Data.String.Read (class Read, read)
 
-import Workers.Service   (WORKER, Registration)
-import Workers.Class     (class Channel)
-import Cache             (CacheStorage)
-import Fetch             (Request, Response)
-
-
---------------------
--- TYPES
---------------------
+import Workers.Service (Registration)
+import Workers.Class (class Channel)
+import Cache (CacheStorage)
+import Fetch (Request, Response)
 
 
 foreign import data Clients :: Type
 
-
 foreign import data Client :: Type
+
+instance channelClient :: Channel Client
 
 
 foreign import data WindowClient :: Type
 
-
 type ClientId = String
-
 
 type ClientQueryOptions =
   { includeUncontrolled :: Boolean
@@ -82,220 +75,13 @@ data ClientType
   | SharedWorker
   | All
 
-
-data FrameType
-  = Auxiliary
-  | TopLevel
-  | Nested
-  | None
-
-
-data VisibilityState
-  = Hidden
-  | Visible
-  | PreRender
-  | Unloaded
-
-
---------------------
--- METHODS
---------------------
-
--- Global Scope
-
-caches
-  :: forall e
-  .  Eff (worker :: WORKER | e) CacheStorage
-caches =
-  _caches
-
-
-clients
-  :: forall e
-  .  Eff (worker :: WORKER | e) Clients
-clients =
-  _clients
-
-
-registration
-  :: forall e
-  .  Eff (worker :: WORKER | e) Registration
-registration =
-  _registration
-
-
-skipWaiting
-  :: forall e
-  .  Eff (worker :: WORKER | e) Unit
-skipWaiting =
-  _skipWaiting
-
-
-onInstall
-  :: forall e e'
-  .  Aff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-onInstall =
-  _onInstall
-
-
-onActivate
-  :: forall e e'
-  .  Aff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-onActivate =
-  _onActivate
-
-
-onFetch
-  :: forall e e' e''
-  .  (Request -> Aff ( | e') (Maybe Response))
-  -> (Request -> Aff ( | e'') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onFetch f =
-  _onFetch toNullable f
-
-
-onMessage
-  :: forall e e' msg
-  .  (ClientId -> msg -> Aff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onMessage =
-  _onMessage
-
--- Clients Interface
-
-get
-  :: forall e
-  .  Clients
-  -> ClientId
-  -> Aff (worker :: WORKER | e) (Maybe Client)
-get cls cid =
-  toMaybe <$> _get cls cid
-
-
-matchAll
-  :: forall e
-  .  Clients
-  -> Aff (worker :: WORKER | e) (Array Client)
-matchAll cls =
-  _matchAll cls { includeUncontrolled: false, clientType: Window }
-
-
-matchAll'
-  :: forall e
-  .  Clients
-  -> ClientQueryOptions
-  -> Aff (worker :: WORKER | e) (Array Client)
-matchAll' =
-  _matchAll
-
-
-openWindow
-  :: forall e
-  .  Clients
-  -> String
-  -> Aff (worker :: WORKER | e) WindowClient
-openWindow =
-  _openWindow
-
-
-claim
-  :: forall e
-  .  Clients
-  -> Aff (worker :: WORKER | e) Unit
-claim =
-  _claim
-
--- Client Interface
-
-url
-  :: Client
-  -> String
-url =
-  _url
-
-
-frameType
-  :: Client
-  -> FrameType
-frameType =
-  _frameType (read >>> toNullable)
-
-
-clientId
-  :: Client
-  -> ClientId
-clientId =
-  _clientId
-
--- Window Client Interface
-
-visibilityState
-  :: WindowClient
-  -> VisibilityState
-visibilityState =
-  _visibilityState (read >>> toNullable)
-
-
-focused
-  :: WindowClient
-  -> Boolean
-focused =
-  _focused
-
-
-focus
-  :: forall e
-  .  WindowClient
-  -> Aff (worker :: WORKER | e) WindowClient
-focus =
-  _focus
-
-
-navigate
-  :: forall e
-  .  WindowClient
-  -> String
-  -> Aff (worker :: WORKER | e) WindowClient
-navigate =
-  _navigate
-
-
---------------------
--- INSTANCES
---------------------
-
-
-instance channelClient :: Channel Client where
-
-
 instance showClientType :: Show ClientType where
-  show x =
-    case x of
+  show =
+    case _ of
       Window       -> "window"
       Worker       -> "worker"
       SharedWorker -> "sharedworker"
       All          -> "all"
-
-
-instance showFrameType :: Show FrameType where
-  show x =
-    case x of
-      Auxiliary -> "auxiliary"
-      TopLevel  -> "top-level"
-      Nested    -> "nested"
-      None      -> "none"
-
-
-instance showVisibilityState :: Show VisibilityState where
-  show x =
-    case x of
-      Hidden    -> "hidden"
-      Visible   -> "visible"
-      PreRender -> "prerender"
-      Unloaded  -> "unloaded"
-
 
 instance readClientType :: Read ClientType where
   read s =
@@ -307,6 +93,20 @@ instance readClientType :: Read ClientType where
       _              -> Nothing
 
 
+data FrameType
+  = Auxiliary
+  | TopLevel
+  | Nested
+  | None
+
+instance showFrameType :: Show FrameType where
+  show x =
+    case x of
+      Auxiliary -> "auxiliary"
+      TopLevel  -> "top-level"
+      Nested    -> "nested"
+      None      -> "none"
+
 instance readFrameType :: Read FrameType where
   read s =
     case s of
@@ -316,6 +116,20 @@ instance readFrameType :: Read FrameType where
       "none"      -> pure None
       _           -> Nothing
 
+
+data VisibilityState
+  = Hidden
+  | Visible
+  | PreRender
+  | Unloaded
+
+instance showVisibilityState :: Show VisibilityState where
+  show x =
+    case x of
+      Hidden    -> "hidden"
+      Visible   -> "visible"
+      PreRender -> "prerender"
+      Unloaded  -> "unloaded"
 
 instance readVisibilityState :: Read VisibilityState where
   read s =
@@ -327,98 +141,127 @@ instance readVisibilityState :: Read VisibilityState where
       _           -> Nothing
 
 
---------------------
--- FFI
---------------------
 
 -- Global Scope
 
-foreign import _caches
-  :: forall e
-  .  Eff (worker :: WORKER | e) CacheStorage
+caches :: Effect CacheStorage
+caches = _caches
 
+clients :: Effect Clients
+clients = _clients
 
-foreign import _clients
-  :: forall e
-  .  Eff (worker :: WORKER | e) Clients
+registration :: Effect Registration
+registration = _registration
 
+skipWaiting :: Effect Unit
+skipWaiting = _skipWaiting
 
-foreign import _registration
-  :: forall e
-  .  Eff (worker :: WORKER | e) Registration
+onInstall :: Aff Unit -> Effect Unit
+onInstall = _onInstall
 
+onActivate :: Effect Unit -> Effect Unit
+onActivate = _onActivate
 
-foreign import _skipWaiting
-  :: forall e
-  .  Eff (worker :: WORKER | e) Unit
+onFetch :: (Request -> Aff (Maybe Response)) -> (Request -> Aff Unit) -> Effect Unit
+onFetch f = _onFetch toNullable f
 
+onMessage :: forall msg. (ClientId -> msg -> Effect Unit) -> Effect Unit
+onMessage = _onMessage
 
-foreign import _onInstall
-  :: forall e e'
-  .  Aff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _onActivate
-  :: forall e e'
-  .  Aff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _onFetch
-  :: forall a e e' e''
-  .  (Maybe a -> Nullable a)
-  -> (Request -> Aff ( | e') (Maybe Response))
-  -> (Request -> Aff ( | e'') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _onMessage
-  :: forall e e' msg
-  .  (ClientId -> msg -> Aff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
 
 -- Clients Interface
 
-foreign import _get
-  :: forall e
-  .  Clients
-  -> ClientId
-  -> Aff (worker :: WORKER | e) (Nullable Client)
+get :: Clients -> ClientId -> Aff (Maybe Client)
+get cls cid = toMaybe <$> fromEffectFnAff (_get cls cid)
 
+matchAll :: Clients -> Aff (Array Client)
+matchAll cls = fromEffectFnAff $ _matchAll cls
+    { includeUncontrolled: false, clientType: Window }
 
-foreign import _matchAll
-  :: forall e
-  .  Clients
-  -> ClientQueryOptions
-  -> Aff (worker :: WORKER | e) (Array Client)
+matchAll' :: Clients -> ClientQueryOptions -> Aff (Array Client)
+matchAll' cls cqo = fromEffectFnAff $ _matchAll cls cqo
 
+openWindow :: Clients -> String -> Aff WindowClient
+openWindow cls s = fromEffectFnAff $ _openWindow cls s
 
-foreign import _openWindow
-  :: forall e
-  .  Clients
-  -> String
-  -> Aff (worker :: WORKER | e) WindowClient
+claim :: Clients -> Aff Unit
+claim cls = fromEffectFnAff $ _claim cls
 
-
-foreign import _claim
-  :: forall e
-  .  Clients
-  -> Aff (worker :: WORKER | e) Unit
 
 -- Client Interface
 
-foreign import _url
-  :: Client
-  -> String
+url :: Client -> String
+url = _url
 
+frameType :: Client -> FrameType
+frameType = _frameType (read >>> toNullable)
+
+clientId :: Client -> ClientId
+clientId =  _clientId
+
+
+-- Window Client Interface
+
+visibilityState :: WindowClient -> VisibilityState
+visibilityState = _visibilityState (read >>> toNullable)
+
+focused :: WindowClient -> Boolean
+focused = _focused
+
+focus :: WindowClient -> Aff WindowClient
+focus wc = fromEffectFnAff $ _focus wc
+
+navigate :: WindowClient -> String -> Aff WindowClient
+navigate wc s = fromEffectFnAff $ _navigate wc s
+
+
+-- Global Scope
+
+foreign import _caches :: Effect CacheStorage
+
+foreign import _clients :: Effect Clients
+
+foreign import _registration :: Effect Registration
+
+foreign import _skipWaiting :: Effect Unit
+
+-- TODO
+foreign import _onInstall :: Aff Unit -> Effect Unit
+
+foreign import _onActivate :: Effect Unit -> Effect Unit
+
+-- TODO
+foreign import _onFetch
+  :: forall a
+  .  (Maybe a -> Nullable a)
+  -> (Request -> Aff (Maybe Response))
+  -> (Request -> Aff Unit)
+  -> Effect Unit
+
+foreign import _onMessage
+  :: forall msg. (ClientId -> msg -> Effect Unit) -> Effect Unit
+
+
+-- Clients Interface
+
+foreign import _get :: Clients -> ClientId -> EffectFnAff (Nullable Client)
+
+foreign import _matchAll :: Clients -> ClientQueryOptions -> EffectFnAff (Array Client)
+
+foreign import _openWindow :: Clients -> String -> EffectFnAff WindowClient
+
+foreign import _claim :: Clients -> EffectFnAff Unit
+
+
+-- Client Interface
+
+foreign import _url :: Client -> String
 
 -- NOTE The null case is "unsafely" ignored
 foreign import _frameType
   :: (String -> Nullable FrameType)
   -> Client
   -> FrameType
-
 
 foreign import _clientId
   :: Client
@@ -432,20 +275,8 @@ foreign import _visibilityState
   -> WindowClient
   -> VisibilityState
 
+foreign import _focused :: WindowClient -> Boolean
 
-foreign import _focused
-  :: WindowClient
-  -> Boolean
+foreign import _focus :: WindowClient -> EffectFnAff WindowClient
 
-
-foreign import _focus
-  :: forall e
-  .  WindowClient
-  -> Aff (worker :: WORKER | e) WindowClient
-
-
-foreign import _navigate
-  :: forall e
-  .  WindowClient
-  -> String
-  -> Aff (worker :: WORKER | e) WindowClient
+foreign import _navigate :: WindowClient -> String -> EffectFnAff WindowClient

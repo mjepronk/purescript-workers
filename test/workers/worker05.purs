@@ -1,16 +1,14 @@
 module Test.Workers.Worker05 where
 
 import Prelude
+import Effect (Effect)
+import Effect.Exception (throwException, error, name)
 
-import Control.Monad.Eff           (Eff)
-import Control.Monad.Eff.Exception (EXCEPTION, throwException, error, name)
-
-import Workers                     (WORKER)
-import GlobalScope.Dedicated       (onError, postMessage)
+import GlobalScope.Dedicated (onError, postMessage)
 
 
 -- | Exception handling via onError
-main :: forall e. Eff (worker :: WORKER, exception :: EXCEPTION | e) Unit
+main :: Effect Unit
 main = do
   onError (name >>> postMessage)
   throwException (error "patate")

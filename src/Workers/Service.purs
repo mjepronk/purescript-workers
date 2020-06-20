@@ -30,28 +30,29 @@ module Workers.Service
 
   -- * Re-exports
   , module Workers
-  ) where
+  )
+where
 
 import Prelude
 
-import Control.Monad.Aff       (Aff, delay)
-import Control.Monad.Eff       (Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Data.Maybe              (Maybe(..))
-import Data.Nullable           (Nullable, toMaybe, toNullable)
-import Data.String.Read        (class Read, read)
-import Data.Time.Duration      (Milliseconds(Milliseconds))
+import Effect.Aff (Aff, delay)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
+import Data.Maybe (Maybe(..))
+import Data.Nullable (Nullable, toMaybe, toNullable)
+import Data.String.Read (class Read, read)
+import Data.Time.Duration (Milliseconds(Milliseconds))
 
-import Workers                 (WORKER, WorkerType(..), onError, postMessage, postMessage')
-import Workers.Class           (class AbstractWorker, class Channel)
-
-
---------------------
--- TYPES
---------------------
+import Workers (WorkerType(..), onError, postMessage, postMessage')
+import Workers.Class (class AbstractWorker, class Channel)
 
 
 foreign import data Service :: Type
+
+instance abstractWorkerService :: AbstractWorker Service
+
+instance channelService :: Channel Service
 
 
 foreign import data Registration :: Type
@@ -70,184 +71,6 @@ data State
   | Activated
   | Redundant
 
-
---------------------
--- METHODS
---------------------
-
--- SERVICE WORKER CONTAINER ~ navigator.serviceWorker globals
-
-controller
-  :: forall e
-  .  Eff (worker :: WORKER | e) (Maybe Service)
-controller =
-  toMaybe <$> _controller
-
-
-getRegistration
-  :: forall e
-  .  Maybe String
-  -> Aff (worker :: WORKER | e) (Maybe Registration)
-getRegistration =
-    toNullable >>> _getRegistration >=> toPureMaybe
-  where
-    toPureMaybe = toMaybe >>> pure
-
-
-onControllerChange
-  :: forall e e'
-  .  Eff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-onControllerChange =
-    _onControllerChange
-
-
-onMessage
- :: forall e e' msg
- .  (msg -> Eff ( | e') Unit)
- -> Eff (worker :: WORKER | e) Unit
-onMessage =
-  _onMessage
-
-
-ready
-  :: forall e
-  .  Aff (worker :: WORKER | e) Registration
-ready =
-  _ready
-
-
-register
-  :: forall e
-  .  String
-  -> Aff (worker :: WORKER | e) Registration
-register url =
-  _register url
-    { scope: ""
-    , workerType: Classic
-    }
-
-
-register'
-  :: forall e
-  .  String
-  -> RegistrationOptions
-  -> Aff (worker :: WORKER | e) Registration
-register' =
-  _register
-
-
-startMessages
-  :: forall e
-  .  Eff (worker :: WORKER | e) Unit
-startMessages =
-  _startMessages
-
-
-wait
-  :: forall e
-  .  Aff (worker :: WORKER | e) Service
-wait = do
-  mworker <- liftEff controller
-  case mworker of
-    Nothing -> do
-      delay (Milliseconds 50.0)
-      wait
-    Just worker -> do
-      pure worker
-
-
--- SERVICE WORKER ~ instance methods
-
-onStateChange
-  :: forall e e'
-  .  Service
-  -> (State -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onStateChange =
-  _onStateChange (read >>> toNullable)
-
-
-scriptURL
-  :: Service
-  -> String
-scriptURL =
-  _scriptURL
-
-
-state
-  :: Service
-  -> State
-state =
-  _state (read >>> toNullable)
-
-
--- SERVICE WORKER REGISTRATION ~ instance method
-
-active
-  :: Registration
-  -> Maybe Service
-active =
-  _active >>> toMaybe
-
-
-installing
-  :: Registration
-  -> Maybe Service
-installing =
-  _installing >>> toMaybe
-
-
-waiting
-  :: Registration
-  -> Maybe Service
-waiting =
-  _waiting >>> toMaybe
-
-
-scope
-  :: Registration
-  -> String
-scope =
-  _scope
-
-
-update
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Unit
-update =
-  _update
-
-
-unregister
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Boolean
-unregister =
-  _unregister
-
-
-onUpdateFound
-  :: forall e e'
-  .  Registration
-  -> Eff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
-onUpdateFound =
-  _onUpdateFound
-
-
---------------------
--- INSTANCES
---------------------
-
-
-instance abstractWorkerService :: AbstractWorker Service
-
-
-instance channelService :: Channel Service
-
-
 instance showState :: Show State where
   show s =
     case s of
@@ -256,7 +79,6 @@ instance showState :: Show State where
       Activating -> "activating"
       Activated  -> "activated"
       Redundant  -> "redundant"
-
 
 instance readState :: Read State where
   read s =
@@ -269,104 +91,117 @@ instance readState :: Read State where
       _            -> Nothing
 
 
---------------------
--- FFI
---------------------
+-- SERVICE WORKER CONTAINER ~ navigator.serviceWorker globals
+
+controller :: Effect (Maybe Service)
+controller = toMaybe <$> _controller
+
+getRegistration :: Maybe String -> Aff (Maybe Registration)
+getRegistration = toNullable >>> _getRegistration >=> toMaybe >>> pure
+
+onControllerChange :: Effect Unit -> Effect Unit
+onControllerChange = _onControllerChange
+
+onMessage :: forall msg. (msg -> Effect Unit) -> Effect Unit
+onMessage = _onMessage
+
+ready :: Aff Registration
+ready = _ready
+
+register :: String -> Aff Registration
+register url = fromEffectFnAff $ _register url
+    { scope: ""
+    , workerType: Classic
+    }
+
+register' :: String -> RegistrationOptions -> Aff Registration
+register' s ro = fromEffectFnAff $ _register s ro
+
+startMessages :: Effect Unit
+startMessages = _startMessages
+
+wait :: Aff Service
+wait = do
+  mworker <- liftEffect controller
+  case mworker of
+    Nothing -> do
+      delay (Milliseconds 50.0)
+      wait
+    Just worker -> do
+      pure worker
 
 
-foreign import _controller
-  :: forall e
-  .  Eff (worker :: WORKER | e) (Nullable Service)
+-- ServiceWorker instance methods
+
+onStateChange :: Service -> (State -> Effect Unit) -> Effect Unit
+onStateChange = _onStateChange (read >>> toNullable)
+
+scriptURL :: Service -> String
+scriptURL = _scriptURL
+
+state :: Service -> State
+state = _state (read >>> toNullable)
 
 
-foreign import _getRegistration
-  :: forall e
-  .  Nullable String
-  -> Aff (worker :: WORKER | e) (Nullable Registration)
+-- ServiceWorkerRegistration instance methods
+
+active :: Registration -> Maybe Service
+active = _active >>> toMaybe
+
+installing :: Registration -> Maybe Service
+installing = _installing >>> toMaybe
+
+waiting :: Registration -> Maybe Service
+waiting = _waiting >>> toMaybe
+
+scope :: Registration -> String
+scope = _scope
+
+update :: Registration -> Aff Unit
+update = _update
+
+unregister :: Registration -> Aff Boolean
+unregister = _unregister
+
+onUpdateFound :: Registration -> Effect Unit -> Effect Unit
+onUpdateFound = _onUpdateFound
 
 
-foreign import _onControllerChange
-  :: forall e e'
-  .  Eff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
 
+foreign import _controller :: Effect (Nullable Service)
 
-foreign import _onMessage
-  :: forall e e' msg
-  .  (msg -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
+foreign import _getRegistration :: Nullable String -> Aff (Nullable Registration)
 
+foreign import _onControllerChange :: Effect Unit -> Effect Unit
 
-foreign import _ready
-  :: forall e
-  .  Aff (worker :: WORKER | e) Registration
+foreign import _onMessage :: forall msg. (msg -> Effect Unit) -> Effect Unit
 
+foreign import _ready :: Aff Registration
 
-foreign import _register
-  :: forall e
-  .  String
-  -> RegistrationOptions
-  -> Aff (worker :: WORKER | e) Registration
+foreign import _register :: String -> RegistrationOptions -> EffectFnAff Registration
 
-
-foreign import _startMessages
-  :: forall e
-  .  Eff (worker :: WORKER | e) Unit
-
+foreign import _startMessages :: Effect Unit
 
 foreign import _onStateChange
-  :: forall e e'
-  .  (String -> Nullable State)
-  ->  Service
-  -> (State -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _scriptURL
-  :: Service
-  -> String
-
-
-foreign import _state
   :: (String -> Nullable State)
   -> Service
-  -> State
+  -> (State -> Effect Unit)
+  -> Effect Unit
 
+foreign import _scriptURL :: Service -> String
 
-foreign import _active
-  :: Registration
-  -> Nullable Service
+foreign import _state :: (String -> Nullable State) -> Service -> State
 
+foreign import _active :: Registration -> Nullable Service
 
-foreign import _installing
-  :: Registration
-  -> Nullable Service
+foreign import _installing :: Registration -> Nullable Service
 
+foreign import _waiting :: Registration -> Nullable Service
 
-foreign import _waiting
-  :: Registration
-  -> Nullable Service
+foreign import _scope :: Registration -> String
 
+foreign import _update :: Registration -> Aff Unit
 
-foreign import _scope
-  :: Registration
-  -> String
+foreign import _unregister :: Registration -> Aff Boolean
 
-
-foreign import _update
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Unit
-
-
-foreign import _unregister
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Boolean
-
-
-foreign import _onUpdateFound
-  :: forall e e'
-  .  Registration
-  -> Eff ( | e') Unit
-  -> Eff (worker :: WORKER | e) Unit
+foreign import _onUpdateFound :: Registration -> Effect Unit -> Effect Unit

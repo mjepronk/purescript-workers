@@ -1,5 +1,5 @@
-exports._location = function _location(toLocation) {
-    return function eff() {
+exports._location = function (toLocation) {
+    return function () {
         // NOTE A Plain JS Object is created because the WorkerLocation object
         // can't be serialized and may lead to weird behavior.
         return toLocation({
@@ -15,8 +15,8 @@ exports._location = function _location(toLocation) {
     };
 };
 
-exports._navigator = function _navigator(toNavigator) {
-    return function eff() {
+exports._navigator = function (toNavigator) {
+    return function () {
         // NOTE A Plain JS Object is created because the WorkerNavigator object
         // can't be serialized and may lead to weird behavior.
         return toNavigator({
@@ -36,13 +36,13 @@ exports._navigator = function _navigator(toNavigator) {
     };
 };
 
-exports.close = function eff() {
+exports.close = function () {
     self.close();
 };
 
-exports.onError = function _onError(f) {
-    return function eff() {
-        self.onerror = function onerror(msg) {
+exports.onError = function (f) {
+    return function () {
+        self.onerror = function (msg) {
             f(new Error(msg))();
             // NOTE indicates that the error has been handled,
             // so it isn't propagated to the parent
@@ -51,41 +51,41 @@ exports.onError = function _onError(f) {
     };
 };
 
-exports.onLanguageChange = function _onLanguageChange(f) {
-    return function eff() {
-        self.onlanguagechange = function onlanguagechange() {
+exports.onLanguageChange = function (f) {
+    return function () {
+        self.onlanguagechange = function () {
             f();
         };
     };
 };
 
-exports.onOffline = function _onOffline(f) {
-    return function eff() {
-        self.onoffline = function onoffline() {
+exports.onOffline = function (f) {
+    return function () {
+        self.onoffline = function () {
             f();
         };
     };
 };
 
-exports.onOnline = function _onOnline(f) {
-    return function eff() {
-        self.ononline = function ononline() {
+exports.onOnline = function (f) {
+    return function () {
+        self.ononline = function () {
             f();
         };
     };
 };
 
-exports.onRejectionHandled = function _onRejectionHandled(f) {
-    return function eff() {
-        self.onrejectionhandled = function onrejectionhandled() {
+exports.onRejectionHandled = function (f) {
+    return function () {
+        self.onrejectionhandled = function () {
             f();
         };
     };
 };
 
-exports.onUnhandledRejection = function _onUnhandledRejection(f) {
-    return function eff() {
-        self.onrejectionunhandled = function onrejectionunhandled() {
+exports.onUnhandledRejection = function (f) {
+    return function () {
+        self.onrejectionunhandled = function () {
             f();
         };
     };

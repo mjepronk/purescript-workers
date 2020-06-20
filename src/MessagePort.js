@@ -1,29 +1,29 @@
-exports._close = function _close(port) {
-    return function eff() {
+exports._close = function (port) {
+    return function () {
         port.close();
     };
 };
 
-exports._start = function _start(port) {
-    return function eff() {
+exports._start = function (port) {
+    return function () {
         port.start();
     };
 };
 
-exports._onMessage = function _onMessage(port) {
-    return function onMessage2(f) {
-        return function eff() {
-            port.onmessage = function onmessage(e) {
+exports._onMessage = function (port) {
+    return function (f) {
+        return function () {
+            port.onmessage = function (e) {
                 f(e.data)();
             };
         };
     };
 };
 
-exports._onMessageError = function _onMessageError(port) {
-    return function onMessageError2(f) {
-        return function eff() {
-            port.onmessageerror = function onmessageerror(e) {
+exports._onMessageError = function (port) {
+    return function (f) {
+        return function () {
+            port.onmessageerror = function (e) {
                 f(e.target.error)(); // FIXME
             };
         };

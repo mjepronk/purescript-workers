@@ -8,25 +8,25 @@ const statusDict = {
 };
 
 exports.abort = function abort(appCache) {
-    return function eff() {
+    return function () {
         return appCache.abort();
     };
 };
 
 exports._status = function _status(toStatus) {
-    return function _status2(appCache) {
+    return function (appCache) {
         return toStatus(statusDict[appCache.status]);
     };
 };
 
 exports.swapCache = function swapCache(appCache) {
-    return function eff() {
+    return function () {
         appCache.swapCache();
     };
 };
 
 exports.update = function update(appCache) {
-    return function eff() {
+    return function () {
         appCache.update();
     };
 };

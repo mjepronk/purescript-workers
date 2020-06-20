@@ -9,101 +9,43 @@ module MessagePort
   -- * MessagePort specific manipulations
   , close
   , start
-  ) where
+  )
+where
 
 import Prelude
 
-import Control.Monad.Eff           (Eff)
-import Control.Monad.Eff.Exception (Error)
+import Effect (Effect)
+import Effect.Exception (Error)
 
-import Workers                     (WORKER)
-import Workers.Class               (class Channel)
+import Workers.Class (class Channel)
 
 
---------------------
--- TYPES
---------------------
+-- | Event handler for the `message` event
+onMessage :: forall msg. MessagePort -> (msg -> Effect Unit) -> Effect Unit
+onMessage port = _onMessage port
+
+-- | Event handler for the `messageError` event
+onMessageError :: MessagePort -> (Error -> Effect Unit) -> Effect Unit
+onMessageError port = _onMessageError port
+
+-- | TODO DOC
+close :: MessagePort -> Effect Unit
+close = _close
+
+-- | TODO DOC
+start :: MessagePort -> Effect Unit
+start = _start
 
 
 foreign import data MessagePort :: Type
 
-
---------------------
--- METHODS
---------------------
-
--- | Event handler for the `message` event
-onMessage
-  :: forall e e' msg
-  .  MessagePort
-  -> (msg -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onMessage port =
-  _onMessage port
-
-
--- | Event handler for the `messageError` event
-onMessageError
-  :: forall e e'
-  .  MessagePort
-  -> (Error -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onMessageError port =
-  _onMessageError port
-
-
--- | TODO DOC
-close
-  :: forall e
-  .  MessagePort
-  -> Eff (worker :: WORKER | e) Unit
-close =
-  _close
-
-
--- | TODO DOC
-start
-  :: forall e
-  .  MessagePort
-  -> Eff (worker :: WORKER | e) Unit
-start =
-  _start
-
-
---------------------
--- INSTANCES
---------------------
-
-
 instance channelMessagePort :: Channel MessagePort
 
 
---------------------
--- FFI
---------------------
+foreign import _onMessage :: forall msg. MessagePort -> (msg -> Effect Unit) -> Effect Unit
 
+foreign import _onMessageError :: MessagePort -> (Error -> Effect Unit) -> Effect Unit
 
-foreign import _onMessage
-  :: forall e e' msg
-  .  MessagePort
-  -> (msg -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
+foreign import _close :: MessagePort -> Effect Unit
 
-
-foreign import _onMessageError
-  :: forall e e'
-  .  MessagePort
-  -> (Error -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _close
-  :: forall e
-  .  MessagePort
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _start
-  :: forall e
-  .  MessagePort
-  -> Eff (worker :: WORKER | e) Unit
+foreign import _start :: MessagePort -> Effect Unit

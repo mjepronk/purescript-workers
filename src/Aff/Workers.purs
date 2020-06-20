@@ -3,48 +3,36 @@ module Aff.Workers
   , postMessage
   , postMessage'
   , module Workers
-  ) where
+  )
+where
 
 import Prelude
 
-import Control.Monad.Aff           (Aff)
-import Control.Monad.Eff           (Eff)
-import Control.Monad.Eff.Class     (liftEff)
-import Control.Monad.Eff.Exception (EXCEPTION, Error)
+import Effect.Aff (Aff)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Effect.Exception (Error)
 
-import Workers                      as W
-import Workers                     (WORKER, Location(..), Navigator(..), Options, WorkerType(..), Credentials(..))
-import Workers.Class               (class AbstractWorker, class Channel)
+import Workers as W
+import Workers (Location(..), Navigator(..), Options, WorkerType(..), Credentials(..))
+import Workers.Class (class AbstractWorker, class Channel)
 
 
 -- | Event handler for the `error` event.
-onError
-  :: forall e e' worker. (AbstractWorker worker)
-  => worker
-  -> (Error -> Eff ( | e') Unit)
-  -> Aff (worker :: WORKER | e) Unit
-onError w =
-  liftEff <<< W.onError w
-
+onError :: forall worker. (AbstractWorker worker) => worker -> (Error -> Effect Unit) -> Aff Unit
+onError w = liftEffect <<< W.onError w
 
 -- | Clones message and transmits it to the Worker object.
-postMessage
-  :: forall e msg channel. (Channel channel)
-  => channel
-  -> msg
-  -> Aff (worker :: WORKER, exception :: EXCEPTION | e) Unit
-postMessage p =
-  liftEff <<< W.postMessage p
-
+postMessage :: forall msg channel. (Channel channel) => channel -> msg -> Aff Unit
+postMessage p = liftEffect <<< W.postMessage p
 
 -- | Clones message and transmits it to the port object associated with
 -- | dedicatedportGlobal.transfer can be passed as a list of objects that are to be
 -- | transferred rather than cloned.
 postMessage'
-  :: forall e msg transfer channel. (Channel channel)
+  :: forall msg transfer channel. (Channel channel)
   => channel
   -> msg
   -> Array transfer
-  -> Aff (worker :: WORKER, exception :: EXCEPTION | e) Unit
-postMessage' p m =
-  liftEff <<< W.postMessage' p m
+  -> Aff Unit
+postMessage' p m = liftEffect <<< W.postMessage' p m

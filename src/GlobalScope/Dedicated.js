@@ -1,19 +1,19 @@
 exports.name = function _name() {
-    return function eff() {
+    return function () {
         return self.name;
     };
 };
 
 exports._postMessage = function _postMessage(msg) {
-    return function postMessage2(transfer) {
-        return function eff() {
+    return function (transfer) {
+        return function () {
             self.postMessage(msg, transfer.length > 0 ? transfer : undefined);
         };
     };
 };
 
 exports.onMessage = function _onMessage(f) {
-    return function eff() {
+    return function () {
         self.onmessage = function onMessage(e) {
             f(e.data)();
         };
@@ -21,7 +21,7 @@ exports.onMessage = function _onMessage(f) {
 };
 
 exports.onMessageError = function _onMessageError(f) {
-    return function eff() {
+    return function () {
         self.onmessageerror = function onMessageError(e) {
             f(e.target.error);
         };

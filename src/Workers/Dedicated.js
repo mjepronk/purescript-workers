@@ -1,31 +1,31 @@
-exports._new = function _new(src) {
-    return function _new2(opts) {
-        return function eff() {
+exports._new = function (src) {
+    return function (opts) {
+        return function () {
             return new Worker(src, opts);
         };
     };
 };
 
-exports._terminate = function _terminate(wrk) {
-    return function eff() {
+exports._terminate = function (wrk) {
+    return function () {
         wrk.terminate();
     };
 };
 
-exports._onMessage = function _onMessage(wrk) {
-    return function onMessage2(f) {
-        return function eff() {
-            wrk.onmessage = function onmessage(e) {
+exports._onMessage = function (wrk) {
+    return function (f) {
+        return function () {
+            wrk.onmessage = function (e) {
                 f(e.data)();
             };
         };
     };
 };
 
-exports._onMessageError = function _onMessageError(wrk) {
-    return function onMessageError2(f) {
-        return function eff() {
-            wrk.onmessageerror = function onmessageerror(e) {
+exports._onMessageError = function (wrk) {
+    return function (f) {
+        return function () {
+            wrk.onmessageerror = function (e) {
                 f(e.target.error)(); // FIXME
             };
         };

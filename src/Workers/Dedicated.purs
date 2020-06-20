@@ -11,36 +11,29 @@ module Workers.Dedicated
 
   -- * Re-exports
   , module Workers
-  ) where
+  )
+where
 
-import Prelude                     (Unit, show)
+import Prelude
 
-import Control.Monad.Eff           (Eff)
-import Control.Monad.Eff.Exception (Error)
+import Effect (Effect)
+import Effect.Exception (Error)
 
-import Workers                     (WORKER, Credentials(..), Location, Navigator, Options, WorkerType(..), onError, postMessage, postMessage')
-import Workers.Class               (class AbstractWorker, class Channel)
-
-
---------------------
--- TYPES
---------------------
+import Workers (Credentials(..), Location, Navigator, Options, WorkerType(..),
+    onError, postMessage, postMessage')
+import Workers.Class (class AbstractWorker, class Channel)
 
 
 foreign import data Dedicated :: Type
 
+instance abstractWorkerDedicated :: AbstractWorker Dedicated
 
---------------------
--- METHODS
---------------------
+instance channelDedicated :: Channel Dedicated
 
 
 -- | Returns a new Worker object. scriptURL will be fetched and executed in the background,
 -- | creating a new global environment for which worker represents the communication channel.
-new
-  :: forall e
-  .  String
-  -> Eff (worker :: WORKER  | e) Dedicated
+new :: String -> Effect Dedicated
 new url =
   _new url
     { name: ""
@@ -55,11 +48,7 @@ new url =
 -- | primarily for debugging purposes. It can also ensure this new global environment supports
 -- | JavaScript modules (specify type: "module"), and if that is specified, can also be used
 -- | to specify how scriptURL is fetched through the credentials option
-new'
-  :: forall e
-  .  String
-  -> Options
-  -> Eff (worker :: WORKER | e) Dedicated
+new' :: String -> Options -> Effect Dedicated
 new' url opts =
   _new url
     { name: opts.name
@@ -69,72 +58,27 @@ new' url opts =
 
 
 -- | Aborts worker’s associated global environment.
-terminate
-  :: forall e
-  .  Dedicated
-  -> Eff (worker :: WORKER | e) Unit
-terminate =
-  _terminate
+terminate :: Dedicated -> Effect Unit
+terminate = _terminate
 
 
 -- | Event handler for the `message` event
-onMessage
-  :: forall e e' msg
-  .  Dedicated
-  -> (msg -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onMessage port =
-  _onMessage port
+onMessage :: forall msg. Dedicated -> (msg -> Effect Unit) -> Effect Unit
+onMessage port = _onMessage port
 
 
 -- | Event handler for the `messageError` event
-onMessageError
-  :: forall e e'
-  .  Dedicated
-  -> (Error -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-onMessageError port =
-  _onMessageError port
+onMessageError :: Dedicated -> (Error -> Effect Unit) -> Effect Unit
+onMessageError port = _onMessageError port
 
 
---------------------
--- INSTANCES
---------------------
+foreign import _onMessage :: forall msg. Dedicated -> (msg -> Effect Unit) -> Effect Unit
 
-
-instance abstractWorkerDedicated :: AbstractWorker Dedicated
-
-
-instance channelDedicated :: Channel Dedicated
-
-
---------------------
--- FFI
---------------------
-
-
-foreign import _onMessage
-  :: forall e e' msg
-  .  Dedicated
-  -> (msg -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-
-
-foreign import _onMessageError
-  :: forall e e'
-  .  Dedicated
-  -> (Error -> Eff ( | e') Unit)
-  -> Eff (worker :: WORKER | e) Unit
-
+foreign import _onMessageError :: Dedicated -> (Error -> Effect Unit) -> Effect Unit
 
 foreign import _new
-  :: forall e
-  .  String
+  :: String
   -> { name :: String, requestCredentials :: String, workerType :: String }
-  -> Eff (worker :: WORKER | e) Dedicated
+  -> Effect Dedicated
 
-
-foreign import _terminate
-  :: forall e
-  .  Dedicated
-  -> Eff (worker :: WORKER | e) Unit
+foreign import _terminate :: Dedicated -> Effect Unit

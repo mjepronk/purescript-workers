@@ -20,167 +20,82 @@ module Aff.Workers.Service
   , onUpdateFound
   , module Workers.Service
   , module Aff.Workers
-  ) where
+  )
+where
 
+import Prelude
 
-import Prelude                 (Unit, (<<<))
+import Effect.Aff (Aff)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Data.Maybe (Maybe)
 
-import Control.Monad.Aff       (Aff)
-import Control.Monad.Eff       (Eff)
-import Control.Monad.Eff.Class (liftEff)
-import Data.Maybe              (Maybe)
-
-import Aff.Workers             (WORKER, WorkerType(..), onError, postMessage, postMessage')
-import Workers.Service         (Service, Registration, RegistrationOptions, State(..))
-import Workers.Service          as W
+import Aff.Workers (WorkerType(..), onError, postMessage, postMessage')
+import Workers.Service (Service, Registration, RegistrationOptions, State(..))
+import Workers.Service as W
 
 
 -- SERVICE WORKER CONTAINER ~ navigator.serviceWorker globals
 
-controller
-  :: forall e
-  .  Aff (worker :: WORKER | e) (Maybe Service)
-controller =
-  liftEff W.controller
+controller :: Aff (Maybe Service)
+controller = liftEffect W.controller
 
+getRegistration :: Maybe String -> Aff (Maybe Registration)
+getRegistration = W.getRegistration
 
-getRegistration
-  :: forall e
-  .  Maybe String
-  -> Aff (worker :: WORKER | e) (Maybe Registration)
-getRegistration =
-  W.getRegistration
+onControllerChange :: Effect Unit -> Effect Unit
+onControllerChange = W.onControllerChange
 
+onMessage :: forall msg. (msg -> Effect Unit) -> Effect Unit
+onMessage = W.onMessage
 
-onControllerChange
-  :: forall e e'
-  .  Eff ( | e') Unit
-  -> Aff (worker :: WORKER | e) Unit
-onControllerChange =
-  liftEff <<< W.onControllerChange
+ready :: Aff Registration
+ready = W.ready
 
+register :: String -> Aff Registration
+register = W.register
 
-onMessage
-  :: forall e e' msg
-  .  (msg -> Eff ( | e') Unit)
-  -> Aff (worker :: WORKER | e) Unit
-onMessage =
-  liftEff <<< W.onMessage
+register' :: String -> RegistrationOptions -> Aff Registration
+register' = W.register'
 
+startMessages :: Aff Unit
+startMessages = liftEffect W.startMessages
 
-ready
-  :: forall e
-  .  Aff (worker :: WORKER | e) Registration
-ready =
-  W.ready
-
-
-register
-  :: forall e
-  .  String
-  -> Aff (worker :: WORKER | e) Registration
-register =
-  W.register
-
-
-register'
-  :: forall e
-  .  String
-  -> RegistrationOptions
-  -> Aff (worker :: WORKER | e) Registration
-register' =
-  W.register'
-
-
-startMessages
-  :: forall e
-  .  Aff (worker :: WORKER | e) Unit
-startMessages =
-  liftEff W.startMessages
-
-
-wait
-  :: forall e
-  . Aff (worker :: WORKER | e) Service
-wait =
-  W.wait
+wait :: Aff Service
+wait = W.wait
 
 
 -- SERVICE WORKER ~ instance methods
 
-onStateChange
-  :: forall e e'
-  .  Service
-  -> (State -> Eff ( | e') Unit)
-  -> Aff (worker :: WORKER | e) Unit
-onStateChange service =
-  liftEff <<< W.onStateChange service
+onStateChange :: Service -> (State -> Effect Unit) -> Aff Unit
+onStateChange service = liftEffect <<< W.onStateChange service
 
+scriptURL :: Service -> String
+scriptURL = W.scriptURL
 
-scriptURL
-  :: Service
-  -> String
-scriptURL =
-  W.scriptURL
-
-
-state
-  :: Service
-  -> State
-state =
-  W.state
+state :: Service -> State
+state = W.state
 
 
 -- SERVICE WORKER REGISTRATION ~ instance method
 
-active
-  :: Registration
-  -> Maybe Service
-active =
-  W.active
+active :: Registration -> Maybe Service
+active = W.active
 
+installing :: Registration -> Maybe Service
+installing = W.installing
 
-installing
-  :: Registration
-  -> Maybe Service
-installing =
-  W.installing
+waiting :: Registration -> Maybe Service
+waiting = W.waiting
 
+scope :: Registration -> String
+scope = W.scope
 
-waiting
-  :: Registration
-  -> Maybe Service
-waiting =
-  W.waiting
+update :: Registration -> Aff Unit
+update = W.update
 
+unregister :: Registration -> Aff Boolean
+unregister = W.unregister
 
-scope
-  :: Registration
-  -> String
-scope =
-  W.scope
-
-
-update
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Unit
-update =
-  W.update
-
-
-unregister
-  :: forall e
-  .  Registration
-  -> Aff (worker :: WORKER | e) Boolean
-unregister =
-  W.unregister
-
-
-onUpdateFound
-  :: forall e e'
-  .  Registration
-  -> Eff ( | e') Unit
-  -> Aff (worker :: WORKER | e) Unit
-onUpdateFound registration =
-  liftEff <<< W.onUpdateFound registration
+onUpdateFound :: Registration -> Effect Unit -> Aff Unit
+onUpdateFound registration = liftEffect <<< W.onUpdateFound registration

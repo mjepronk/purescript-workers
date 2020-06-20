@@ -1,7 +1,6 @@
 module Fetch
   -- * Effects & Classes
-  ( FETCH
-  , class IsRequest, toRequest
+  ( class IsRequest, toRequest
   , class HasBody, text, json
   , class Clone, clone
 
@@ -51,22 +50,20 @@ module Fetch
 
 import Prelude
 
-import Control.Monad.Aff           (Aff)
-import Control.Monad.Eff           (kind Effect, Eff)
-import Control.Monad.Eff.Exception (EXCEPTION)
-import Data.Argonaut.Core          (Json)
-import Data.Maybe                  (Maybe(..))
-import Data.Nullable               (Nullable, toNullable)
-import Data.String.Read            (class Read, read)
-import Network.HTTP                (Verb, Header(..), HeaderHead, StatusCode, string2Head, string2Verb, number2Status, status2Number)
+import Effect.Aff         (Aff)
+import Effect             (Effect)
+import Data.Argonaut.Core (Json)
+import Data.Maybe         (Maybe(..))
+import Data.Nullable      (Nullable, toNullable)
+import Data.String.Read   (class Read, read)
+import Network.HTTP       (Verb, Header(..), HeaderHead, StatusCode,
+                           string2Head, string2Verb, number2Status,
+                           status2Number)
 
 
 --------------------
 -- TYPES
 --------------------
-
-foreign import data FETCH :: Effect
-
 
 foreign import data Response :: Type
 
@@ -79,12 +76,12 @@ class IsRequest req where
 
 
 class HasBody body where
-  json :: forall e. body -> Aff (fetch :: FETCH | e) Json
-  text :: forall e. body -> Aff (fetch :: FETCH | e) String
+  json :: body -> Aff Json
+  text :: body -> Aff String
 
 
 class Clone object where
-  clone :: forall e. object -> Eff (exception :: EXCEPTION | e) object
+  clone :: object -> Effect object
 
 
 type RequestInfo = String
@@ -185,9 +182,9 @@ data ResponseType
 -- Fetch
 
 fetch
-  :: forall e req. (IsRequest req)
+  :: forall req. (IsRequest req)
   => req
-  -> Aff (fetch :: FETCH | e) Response
+  -> Aff Response
 fetch =
   toRequest >>> _fetch
 
@@ -204,7 +201,7 @@ new url =
 new'
   :: String
   -> RequestInit
-  -> Eff (exception :: EXCEPTION) Request
+  -> Effect Request
 new' url opts =
   _newPrime url opts
 
@@ -371,7 +368,7 @@ responseURL =
 
 instance isRequestRequest :: IsRequest Request where
   toRequest =
-    id
+    identity
 
 
 instance isRequestString :: IsRequest String where
@@ -597,29 +594,28 @@ instance readResponseType :: Read ResponseType where
 -- Fetch
 
 foreign import _fetch
-  :: forall e
-  .  Request
-  -> Aff (fetch :: FETCH | e) Response
+  :: Request
+  -> Aff Response
 
 -- Clone
 
 foreign import _clone
-  :: forall object e
+  :: forall object
   .  object
-  -> Eff (exception :: EXCEPTION | e) object
+  -> Effect object
 
 -- HasBody
 
 foreign import _text
-  :: forall e body
+  :: forall body
   .  body
-  -> Aff (fetch :: FETCH | e) String
+  -> Aff String
 
 
 foreign import _json
-  :: forall e body
+  :: forall body
   .  body
-  -> Aff (fetch :: FETCH | e) Json
+  -> Aff Json
 
 
 -- Request
@@ -630,10 +626,9 @@ foreign import _new
 
 
 foreign import _newPrime
-  :: forall e
-  .  String
+  :: String
   -> RequestInit
-  -> Eff (exception :: EXCEPTION | e) Request
+  -> Effect Request
 
 
 foreign import _requestCache

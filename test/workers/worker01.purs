@@ -1,15 +1,11 @@
 module Test.Workers.Worker01 where
 
 import Prelude
+import Effect (Effect)
 
-import Control.Monad.Eff           (Eff)
-import Control.Monad.Eff.Exception (EXCEPTION)
-
-import Workers                     (WORKER)
-import GlobalScope.Dedicated       (onMessage, postMessage)
+import GlobalScope.Dedicated (onMessage, postMessage)
 
 
 -- | Basic Worker Replying "world" to any message
-main :: forall e. Eff (worker :: WORKER, exception :: EXCEPTION | e) Unit
-main =
-  onMessage (\_ -> postMessage "world")
+main :: Effect Unit
+main = onMessage (\_ -> postMessage "world")

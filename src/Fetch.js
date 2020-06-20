@@ -1,7 +1,7 @@
 /* Fetch */
 
-exports._fetch = function _fetch(req) {
-    return function aff(success, error) {
+exports._fetch = function (req) {
+    return function (error, success) {
         try {
             fetch(req).then(success, error);
         } catch (err) {
@@ -13,8 +13,8 @@ exports._fetch = function _fetch(req) {
 
 /* Clone */
 
-exports._clone = function _clone(obj) {
-    return function eff() {
+exports._clone = function (obj) {
+    return function () {
         return obj.clone();
     };
 };
@@ -22,8 +22,8 @@ exports._clone = function _clone(obj) {
 
 /* Hasbody */
 
-exports._text = function _text(body) {
-    return function aff(success, error) {
+exports._text = function (body) {
+    return function (error, success) {
         try {
             body.text().then(success, error);
         } catch (err) {
@@ -33,8 +33,8 @@ exports._text = function _text(body) {
 };
 
 
-exports._json = function _json(body) {
-    return function aff(success, error) {
+exports._json = function (body) {
+    return function (error, success) {
         try {
             body.json().then(success, error);
         } catch (err) {
@@ -46,35 +46,35 @@ exports._json = function _json(body) {
 
 /* Request */
 
-exports._new = function _new(url) {
+exports._new = function (url) {
     return new Request(url);
 };
 
-exports._newPrime = function _newPrime(url, init) {
+exports._newPrime = function (url, init) {
     return new Request(url, init);
 };
 
-exports._requestCache = function _requestCache(constructor) {
-    return function _requestCache2(req) {
+exports._requestCache = function (constructor) {
+    return function (req) {
         return constructor(req.cache);
     };
 };
 
-exports._requestCredentials = function _requestCredentials(constructor) {
-    return function _requestCredentials2(req) {
+exports._requestCredentials = function (constructor) {
+    return function (req) {
         return constructor(req.credentials);
     };
 };
 
-exports._requestDestination = function _requestDestination(constructor) {
-    return function _requestDestination2(req) {
+exports._requestDestination = function (constructor) {
+    return function (req) {
         return constructor(req.destination);
     };
 };
 
-exports._requestHeaders = function _requestHeaders(Header) {
-    return function _requestHeaders2(constructor) {
-        return function _requestHeaders3(req) {
+exports._requestHeaders = function (Header) {
+    return function (constructor) {
+        return function (req) {
             var headers = [];
             var gen = req.headers.entries();
             var entry = gen.next();
@@ -88,48 +88,48 @@ exports._requestHeaders = function _requestHeaders(Header) {
     };
 };
 
-exports._requestIntegrity = function _requestIntegrity(req) {
+exports._requestIntegrity = function (req) {
     return req.integrity;
 };
 
-exports._requestKeepAlive = function _requestKeepAlive(req) {
+exports._requestKeepAlive = function (req) {
     return req.keepalive;
 };
 
-exports._requestMethod = function _requestMethod(constructor) {
-    return function _requestMethod2(req) {
+exports._requestMethod = function (constructor) {
+    return function (req) {
         return constructor(req.method);
     };
 };
 
-exports._requestMode = function _requestMode(constructor) {
-    return function _requestMode2(req) {
+exports._requestMode = function (constructor) {
+    return function (req) {
         return constructor(req.mode);
     };
 };
 
-exports._requestRedirect = function _requestRedirect(constructor) {
-    return function _requestRedirect2(req) {
+exports._requestRedirect = function (constructor) {
+    return function (req) {
         return constructor(req.redirect);
     };
 };
 
-exports._requestReferrer = function _requestReferrer(req) {
+exports._requestReferrer = function (req) {
     return req.referrer;
 };
 
-exports._requestReferrerPolicy = function _requestReferrerPolicy(constructor) {
-    return function _requestReferrerPolicy2(req) {
+exports._requestReferrerPolicy = function (constructor) {
+    return function (req) {
         return constructor(req.referrerPolicy);
     };
 };
 
-exports._requestURL = function _requestURL(req) {
+exports._requestURL = function (req) {
     return req.url;
 };
 
-exports._requestType = function _requestType(constructor) {
-    return function _requestType2(req) {
+exports._requestType = function (constructor) {
+    return function (req) {
         return constructor(req.type);
     };
 };
@@ -137,13 +137,13 @@ exports._requestType = function _requestType(constructor) {
 
 /* Response */
 
-exports._responseError = function _responseError(res) {
+exports._responseError = function (res) {
     return res.error();
 };
 
-exports._responseHeaders = function _responseHeaders(Header) {
-    return function _responseHeaders2(constructor) {
-        return function _responseHeaders3(res) {
+exports._responseHeaders = function (Header) {
+    return function (constructor) {
+        return function (res) {
             var headers = [];
             var gen = res.headers.entries();
             var entry = gen.next();
@@ -157,38 +157,38 @@ exports._responseHeaders = function _responseHeaders(Header) {
     };
 };
 
-exports._responseOk = function _responseOk(res) {
+exports._responseOk = function (res) {
     return res.ok;
 };
 
-exports._responseRedirect = function _responseRedirect(res) {
-    return function _responseRedirect2(url) {
-        return function _responseRedirect3(statusCode) {
+exports._responseRedirect = function (res) {
+    return function (url) {
+        return function (statusCode) {
             return res.redirect(url, statusCode || undefined);
         };
     };
 };
 
-exports._responseRedirected = function _responseRedirected(res) {
+exports._responseRedirected = function (res) {
     return res.redirected;
 };
 
-exports._responseStatus = function _responseStatus(constructor) {
-    return function _responseStatus2(res) {
+exports._responseStatus = function (constructor) {
+    return function (res) {
         return constructor(res.status);
     };
 };
 
-exports._responseStatusCode = function _responseStatusCode(res) {
+exports._responseStatusCode = function (res) {
     return res.status;
 };
 
-exports._responseType = function _responseType(constructor) {
-    return function _responseType2(res) {
+exports._responseType = function (constructor) {
+    return function (res) {
         return constructor(res.type);
     };
 };
 
-exports._responseURL = function _responseURL(res) {
+exports._responseURL = function (res) {
     return res.url;
 };

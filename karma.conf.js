@@ -1,8 +1,12 @@
 module.exports = (config) => {
     config.set({
         autoWatch: true,
-        singleRun: true,
-        browsers: ['Chrome'],
+        singleRun: false,
+        browsers: ['Chrome', 'Firefox'],
+        browserConsoleLogOptions: {
+            level:  "debug",
+            terminal: true
+        },
         basePath: 'dist/karma',
         customHeaders: [{
             match: '.*',
@@ -27,8 +31,9 @@ module.exports = (config) => {
             'karma-spec-reporter',
             'karma-mocha',
         ],
-        reporters: ['spec'],
+        reporters: ['spec', 'progress'],
         client: {
+            captureConsole: true,
             mocha: {
                 timeout: 10000,
             },

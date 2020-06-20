@@ -1,7 +1,6 @@
 module Cache
   -- * Types
-  ( CACHE
-  , Cache
+  ( Cache
   , CacheStorage
   , CacheQueryOptions
   , defaultCacheQueryOptions
@@ -24,30 +23,20 @@ module Cache
   , matchAll
   , matchAll'
   , put
-  ) where
+  )
+where
 
 import Prelude
+import Effect.Aff (Aff)
+import Data.Maybe (Maybe(..))
+import Data.Nullable (Nullable, toNullable, toMaybe)
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Eff (kind Effect)
-import Data.Maybe        (Maybe(..))
-import Data.Nullable     (Nullable, toNullable, toMaybe)
-
-import Fetch             (Response, RequestInfo)
-
-
---------------------
--- TYPES
---------------------
-
-foreign import data CACHE :: Effect
+import Fetch (Response, RequestInfo)
 
 
 foreign import data Cache :: Type
 
-
 foreign import data CacheStorage :: Type
-
 
 
 type CacheQueryOptions =
@@ -65,234 +54,110 @@ defaultCacheQueryOptions =
   }
 
 
---------------------
--- METHODS
---------------------
-
 -- Cache Storage
 
-deleteCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Boolean
-deleteCache =
-  _deleteCache
+deleteCache :: CacheStorage -> String -> Aff Boolean
+deleteCache = _deleteCache
 
+hasCache :: CacheStorage -> String -> Aff Boolean
+hasCache = _hasCache
 
-hasCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Boolean
-hasCache =
-  _hasCache
+keysCache :: CacheStorage -> Aff (Array String)
+keysCache = _keysCache
 
+openCache :: CacheStorage -> String -> Aff Cache
+openCache = _openCache
 
-keysCache
-  :: forall e
-  .  CacheStorage
-  -> Aff (cache :: CACHE | e) (Array String)
-keysCache =
-  _keysCache
-
-
-openCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Cache
-openCache =
-  _openCache
 
 -- Cache
 
-add
-  :: forall e
-  .  Cache
-  -> RequestInfo
-  -> Aff (cache :: CACHE | e) Unit
-add =
-  _add
+add :: Cache -> RequestInfo -> Aff Unit
+add = _add
 
+addAll :: Cache -> Array RequestInfo -> Aff Unit
+addAll = _addAll
 
-addAll
-  :: forall e
-  .  Cache
-  -> Array RequestInfo
-  -> Aff (cache :: CACHE | e) Unit
-addAll =
-  _addAll
+delete :: Cache -> RequestInfo -> Aff Boolean
+delete cache req = _delete cache req defaultCacheQueryOptions
 
+delete' :: Cache -> RequestInfo -> CacheQueryOptions -> Aff Boolean
+delete' = _delete
 
-delete
-  :: forall e
-  .  Cache
-  -> RequestInfo
-  -> Aff (cache :: CACHE | e) Boolean
-delete cache req =
-  _delete cache req defaultCacheQueryOptions
-
-
-delete'
-  :: forall e
-  .  Cache
-  -> RequestInfo
-  -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) Boolean
-delete' =
-  _delete
-
-
-keys
-  :: forall e
-  .  Cache
-  -> Aff (cache :: CACHE | e) (Array RequestInfo)
-keys cache =
-  _keys cache (toNullable Nothing) defaultCacheQueryOptions
-
+keys :: Cache -> Aff (Array RequestInfo)
+keys cache = _keys cache (toNullable Nothing) defaultCacheQueryOptions
 
 keys'
-  :: forall e
-  .  Cache
+  :: Cache
   -> Maybe RequestInfo
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Array RequestInfo)
-keys' cache req opts =
-  _keys cache (toNullable req) opts
+  -> Aff (Array RequestInfo)
+keys' cache req opts = _keys cache (toNullable req) opts
 
-
-match
-  :: forall e
-  .  Cache
-  -> RequestInfo
-  -> Aff (cache :: CACHE | e) (Maybe Response)
-match cache req =
-  toMaybe <$> _match cache req defaultCacheQueryOptions
-
+match :: Cache -> RequestInfo -> Aff (Maybe Response)
+match cache req = toMaybe <$> _match cache req defaultCacheQueryOptions
 
 match'
-  :: forall e
-  .  Cache
+  :: Cache
   -> RequestInfo
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Maybe Response)
-match' cache req opts =
-  toMaybe <$>_match cache req opts
+  -> Aff (Maybe Response)
+match' cache req opts = toMaybe <$>_match cache req opts
 
 
-matchAll
-  :: forall e
-  .  Cache
-  -> Aff (cache :: CACHE | e) (Array Response)
-matchAll cache =
-  _matchAll cache (toNullable Nothing) defaultCacheQueryOptions
-
+matchAll :: Cache -> Aff (Array Response)
+matchAll cache = _matchAll cache (toNullable Nothing) defaultCacheQueryOptions
 
 matchAll'
-  :: forall e
-  .  Cache
+  :: Cache
   -> Maybe RequestInfo
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Array Response)
-matchAll' cache req opts =
-  _matchAll cache (toNullable req) opts
+  -> Aff (Array Response)
+matchAll' cache req opts = _matchAll cache (toNullable req) opts
 
 
-put
-  :: forall e
-  .  Cache
-  -> RequestInfo
-  -> Response
-  -> Aff (cache :: CACHE | e) Unit
-put =
-  _put
+put :: Cache -> RequestInfo -> Response -> Aff Unit
+put = _put
 
-
---------------------
--- FFI
---------------------
 
 -- Cache Storage
 
-foreign import _deleteCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Boolean
+foreign import _deleteCache :: CacheStorage -> String -> Aff Boolean
 
+foreign import _hasCache :: CacheStorage -> String -> Aff Boolean
 
-foreign import _hasCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Boolean
+foreign import _keysCache :: CacheStorage -> Aff (Array String)
 
-
-foreign import _keysCache
-  :: forall e
-  .  CacheStorage
-  -> Aff (cache :: CACHE | e) (Array String)
-
-
-foreign import _openCache
-  :: forall e
-  .  CacheStorage
-  -> String
-  -> Aff (cache :: CACHE | e) Cache
+foreign import _openCache :: CacheStorage -> String -> Aff Cache
 
 
 -- Cache
 
-foreign import _add
-  :: forall e
-  .  Cache
-  -> String
-  -> Aff (cache :: CACHE | e) Unit
+foreign import _add :: Cache -> String -> Aff Unit
 
-
-foreign import _addAll
-  :: forall e
-  .  Cache
-  -> Array String
-  -> Aff (cache :: CACHE | e) Unit
-
+foreign import _addAll :: Cache -> Array String -> Aff Unit
 
 foreign import _delete
-  :: forall e
-  .  Cache
+  :: Cache
   -> String
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) Boolean
-
+  -> Aff Boolean
 
 foreign import _keys
-  :: forall e
-  .  Cache
+  :: Cache
   -> Nullable String
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Array String)
-
+  -> Aff (Array String)
 
 foreign import _match
-  :: forall e
-  .  Cache
+  :: Cache
   -> String
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Nullable Response)
-
+  -> Aff (Nullable Response)
 
 foreign import _matchAll
-  :: forall e
-  .  Cache
+  :: Cache
   -> Nullable String
   -> CacheQueryOptions
-  -> Aff (cache :: CACHE | e) (Array Response)
+  -> Aff (Array Response)
 
-
-foreign import _put
-  :: forall e
-  .  Cache
-  -> String
-  -> Response
-  -> Aff (cache :: CACHE | e) Unit
+foreign import _put :: Cache -> String -> Response -> Aff Unit

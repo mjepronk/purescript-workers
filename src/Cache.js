@@ -1,8 +1,8 @@
 /* Cache Storage */
 
 exports._deleteCache = function _deleteCache(cacheStorage) {
-    return function _deleteCache2(cacheName) {
-        return function aff(success, error) {
+    return function (cacheName) {
+        return function (error, success) {
             try {
                 cacheStorage.delete(cacheName).then(success, error);
             } catch (err) {
@@ -13,8 +13,8 @@ exports._deleteCache = function _deleteCache(cacheStorage) {
 };
 
 exports._hasCache = function _hasCache(cacheStorage) {
-    return function _hasCache2(cacheName) {
-        return function aff(success, error) {
+    return function (cacheName) {
+        return function (error, success) {
             try {
                 cacheStorage.has(cacheName).then(success, error);
             } catch (err) {
@@ -25,8 +25,8 @@ exports._hasCache = function _hasCache(cacheStorage) {
 };
 
 exports._openCache = function _openCache(cacheStorage) {
-    return function _openCache2(cacheName) {
-        return function aff(success, error) {
+    return function (cacheName) {
+        return function (error, success) {
             try {
                 cacheStorage.open(cacheName).then(success, error);
             } catch (err) {
@@ -37,7 +37,7 @@ exports._openCache = function _openCache(cacheStorage) {
 };
 
 exports._keysCache = function _keysCache(cacheStorage) {
-    return function aff(success, error) {
+    return function (error, success) {
         try {
             cacheStorage.keys()
                         .then(function onSuccess(xs) {
@@ -53,8 +53,8 @@ exports._keysCache = function _keysCache(cacheStorage) {
 /* Cache */
 
 exports._add = function _add(cache) {
-    return function _add2(req) {
-        return function aff(success, error) {
+    return function (req) {
+        return function (error, success) {
             try {
                 cache.add(req).then(success, error);
             } catch (err) {
@@ -65,8 +65,8 @@ exports._add = function _add(cache) {
 };
 
 exports._addAll = function _addAll(cache) {
-    return function _addAll2(xs) {
-        return function aff(success, error) {
+    return function (xs) {
+        return function (error, success) {
             try {
                 cache.addAll(xs).then(success, error);
             } catch (err) {
@@ -77,9 +77,9 @@ exports._addAll = function _addAll(cache) {
 };
 
 exports._delete = function _delete(cache) {
-    return function _delete2(req) {
-        return function _delete3(opts) {
-            return function aff(success, error) {
+    return function (req) {
+        return function (opts) {
+            return function (error, success) {
                 try {
                     cache.delete(req, opts).then(success, error);
                 } catch (err) {
@@ -91,9 +91,9 @@ exports._delete = function _delete(cache) {
 };
 
 exports._keys = function _keys(cache) {
-    return function _keys2(req) {
-        return function _keys3(opts) {
-            return function aff(success, error) {
+    return function (req) {
+        return function (opts) {
+            return function (error, success) {
                 try {
                     cache.keys(req, opts)
                          .then(function onSuccess(xs) {
@@ -109,9 +109,9 @@ exports._keys = function _keys(cache) {
 };
 
 exports._match = function _match(cache) {
-    return function _match2(req) {
-        return function _match3(opts) {
-            return function aff(success, error) {
+    return function (req) {
+        return function (opts) {
+            return function (error, success) {
                 try {
                     cache.match(req, opts).then(success, error);
                 } catch (err) {
@@ -123,9 +123,9 @@ exports._match = function _match(cache) {
 };
 
 exports._matchAll = function _matchAll(cache) {
-    return function _matchAll2(xs) {
-        return function _matchAll3(opts) {
-            return function aff(success, error) {
+    return function (xs) {
+        return function (opts) {
+            return function (error, success) {
                 try {
                     cache.matchAll(xs, opts)
                          .then(function onSuccess(xs_) {
@@ -141,9 +141,9 @@ exports._matchAll = function _matchAll(cache) {
 };
 
 exports._put = function _put(cache) {
-    return function _put2(req) {
-        return function _put3(res) {
-            return function aff(success, error) {
+    return function (req) {
+        return function (res) {
+            return function (error, success) {
                 try {
                     cache.put(req, res).then(success, error);
                 } catch (err) {
