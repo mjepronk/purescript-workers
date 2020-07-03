@@ -4,6 +4,10 @@ You can edit this file as you like.
 -}
 { name =
     "workers"
+, license =
+    "MIT"
+, repository =
+    "https://github.com/mjepronk/purescript-workers.git"
 , dependencies =
     [ "console"
     , "aff"

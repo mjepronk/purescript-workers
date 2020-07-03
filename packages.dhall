@@ -131,8 +131,7 @@ let additions =
         , version = "v4.0.0"
         }
       , http =
-        { dependencies =
-          [ "maybe" ]
+        { dependencies = [ "maybe" ]
         , repo = "https://github.com/joneshf/purescript-http.git"
         , version = "v4.0.0"
         }

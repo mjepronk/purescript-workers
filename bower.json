@@ -1,41 +1,30 @@
 {
-  "name": "purescript-workers",
-  "version": "2.0.0",
-  "description": "An API wrapper around Web Workers",
-  "license": "MIT",
-  "homepage": "https://github.com/truqu/purescript-workers",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/truqu/purescript-workers.git"
-  },
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "output",
-    "test",
-    "dist",
-    "release",
-    "package.json",
-    "karma.conf.js",
-    "karma.browserstack.conf.js",
-    "deploy.sh"
-  ],
-  "dependencies": {
-    "purescript-aff": "^3.1.0",
-    "purescript-eff": "^3.1.0",
-    "purescript-exceptions": "https://github.com/truqu/purescript-exceptions.git#3.1.0",
-    "purescript-generics": "^4.0.0",
-    "purescript-nonempty": "^4.0.0",
-    "purescript-prelude": "^3.1.0",
-    "purescript-read": "^1.0.0",
-    "purescript-http": "^3.0.0",
-    "purescript-argonaut": "^3.0.0",
-    "purescript-nullable": "^3.0.0"
-  },
-  "devDependencies": {
-    "purescript-spec": "^1.0.0",
-    "purescript-psci-support": "^3.0.0",
-    "purescript-spec-mocha": "https://github.com/truqu/purescript-spec-mocha.git#0.5.0"
-  }
+    "name": "purescript-workers",
+    "license": [
+        "MIT"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mjepronk/purescript-workers.git"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "output"
+    ],
+    "dependencies": {
+        "purescript-aff": "^v5.1.2",
+        "purescript-argonaut": "^v6.0.0",
+        "purescript-avar": "^v3.0.0",
+        "purescript-console": "^v4.4.0",
+        "purescript-effect": "^v2.0.1",
+        "purescript-generics-rep": "^v6.1.1",
+        "purescript-http": "^v4.0.0",
+        "purescript-nullable": "^v4.1.1",
+        "purescript-psci-support": "^v4.0.0",
+        "purescript-read": "^v1.0.1",
+        "purescript-spec": "^v4.0.1",
+        "purescript-spec-mocha": "^v4.0.0"
+    }
 }
